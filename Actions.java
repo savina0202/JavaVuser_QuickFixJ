@@ -1,7 +1,8 @@
 /*
- * Opentext Performance Engineering Java script. (Build: _build_number_)
+ * Performance test script 
+ * Description: 
+ * This script is a demo for how to use loadrunner Java Vuser to send Fix message from quickfix initiator to acceptor
  * 
- * Script Description: 
  *                     
  */
 
@@ -12,6 +13,7 @@ import quickfix.fix44.NewOrderSingle;
 import quickfix.fix44.ExecutionReport;
 import java.time.LocalDateTime;
 import java.util.Date;
+import org.slf4j.LoggerFactory;
 
 public class Actions 
 {
@@ -23,8 +25,8 @@ public class Actions
 
 	public int init() throws Throwable {
         
-		lr.log_message("=== FIX Client Initialization ===");   
-		
+		lr.log_message("=== FIX Client Initialization ==="); 
+				
         try {
 			
 			//Creat folders
@@ -39,11 +41,13 @@ public class Actions
                 "ReconnectInterval=60\n" +
                 "SenderCompID=LOADRUNNER_CLIENT\n" +
                 "TargetCompID=FIX_SERVER\n" +
+            	"LogLevel=WARN\n" +
             	"FileStorePath=store\n" +
             	"FileLogPath=log\n" +
             	"ResetOnLogon=Y\n" +   //Reset msgSeqNum when logon
             	"ResetOnLogout=Y\n" +  //Reset msgSeqNum when logout
             	"ResetOnDisconnect=Y\n" +  //Reset msgSeqNum when disconnect
+            	"LogLevel=WARN\n" +
                 "[SESSION]\n" +
                 "BeginString=FIX.4.4\n" +
                 "DataDictionary=config/FIX44.xml\n" + 
@@ -51,7 +55,8 @@ public class Actions
                 "SocketConnectHost=127.0.0.1\n" +
                 "SocketConnectPort=9000\n" +
                 "StartTime=00:00:00\n" +
-                "EndTime=00:00:00";
+                "EndTime=00:00:00\n" +
+            	"MinaLogLevel=WARN";
             
         
 
@@ -79,7 +84,7 @@ public class Actions
 	                Session session = Session.lookupSession(sid);
 	                if (session != null && session.isLoggedOn()) {
 	                    sessionId = sid;
-	                    lr.log_message("FIX login successful! sessionId:"+sessionId);
+	                    lr.log_message("FIX login successful! sessionId:"+session);
 	                    loggedOn = true;
 	                    return lr.PASS;
 	                }
@@ -109,7 +114,7 @@ public class Actions
 	        String orderid= "LR_VU" + lr.get_vuser_id() + 
 	               "_" + orderCounter + 
 	               "_" + System.currentTimeMillis();
-	        lr.log_message("orderid=" + orderid);
+	        //lr.log_message("orderid=" + orderid);
 	        return orderid;
 	}
 
@@ -201,7 +206,7 @@ public class Actions
         } catch (Exception e) {
             lr.error_message("Stop error: " + e.getMessage());
         }
-        return lr.PASS;
+        return lr.PASS; 
 	}
 
 
