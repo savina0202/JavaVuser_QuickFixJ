@@ -109,7 +109,7 @@ On Loadrunner side (Client):
 
 ```
 3.Configure the following Classpath Entries of quickfixj under Runtime Settings. 
-  Note: these .jar files can be found from org.quickfixj-2.2.1-bin.zip
+  Note: these .jar files can be found from org.quickfixj-2.2.1-bin.zip and also can be found at config foler of this repo
 ```
 <img width="1385" height="606" alt="Runtime_Settings_Classpath" src="https://github.com/user-attachments/assets/e103fc83-f1a2-45c6-bbc6-1b72b727ca74" />
 
@@ -164,16 +164,13 @@ FileLogPath=server_log
   * Run the fixserver.bat
   * Run the Loadrunner script using Replay and monitor the Replay output
 
-
-
-
-
-
-
-
-
-
 ## Demo
 
-Insert gif or link to demo
+* Replay Summary of Loadrunner： **the average response time for two iterations is 64 ms**
+<img width="841" height="480" alt="Replay_Summary" src="https://github.com/user-attachments/assets/72f1f6c0-ac3b-49f3-8a12-d891a012b85f" />
 
+* Relay Log of Loadrunner
+<img width="1773" height="757" alt="Peplay_Log" src="https://github.com/user-attachments/assets/1deebe00-2e52-4b92-8c4a-3bd913bd1282" />
+
+* Log on Server side
+<img width="1974" height="326" alt="Log_server" src="https://github.com/user-attachments/assets/9d042c11-0a1a-4fb5-8ac5-772829707db9" />
