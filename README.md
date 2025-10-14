@@ -101,16 +101,22 @@ On Loadrunner side (Client):
 1.Open VU Gen, Clicking on New Script and Solution from File
    Select "Java Vuser" protocol from Create a New Script window
    Enter your Script Name and specify the location
-
+```
+```
 2.Configure the Java version of Loadrunner. Since QuickFix/J is pertty old, it uses jdk 1.8, Loadrunner needs to have this version JDK configured 
-
+```
 <img width="755" height="611" alt="LR_Config_Java_Version" src="https://github.com/user-attachments/assets/a5052cc7-2179-472d-a071-a69a2faa6b88" />
 
+```
 3.Configure the following Classpath Entries of quickfixj under Runtime Settings. 
   Note: these .jar files can be found from org.quickfixj-2.2.1-bin.zip
+```
 <img width="1385" height="606" alt="Runtime_Settings_Classpath" src="https://github.com/user-attachments/assets/e103fc83-f1a2-45c6-bbc6-1b72b727ca74" />
 
+```
 4. Copy my actions.java, then overwrite the existing empty Actions Script
+```
+```
 5. Make sure log folders are created as per the configuration on the script:
 
   "FileStorePath=store\n" +
