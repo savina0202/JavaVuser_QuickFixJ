@@ -6,16 +6,31 @@ In anohter words, it allows Loadrunner to behave like a FIX trading client that 
 
 
 ## 🎯 Overview
-This POC implements a Java-based LoadRunner virtual user script that:
+This is a proof of concept (PoC) based on the FIX protocol, using a client–server architecture, where LoadRunner acts as the client and interacts with the server:
 
-* Establishes FIX 4.4 connections to the trading servers
-* Generates and sends realistic FIX orders (NewOrderSingle)
-* Measures transaction performance and response times
+* Establishes socket connections between client and the trading server
+* Generates and sends realistic FIX orders (NewOrderSingle) and receive the trading execution report from the server for this order
+* Measures the trading transaction performance and response times
 * Simulates real-world trading load for performance testing  
 
-## 🏗️ Architecture
+## 🏗️ High-level architecture
 
-`LoadRunner Virtual User → FIX 4.4 Protocol → Trading System QuickFix/J (127.0.0.1:9000)`
+<img width="604" height="141" alt="image" src="https://github.com/user-attachments/assets/f8299132-8e3b-43c0-ada9-e9ca5ce8bb95" />
+
+### Components and Roles
+
+Loadrunner Java Vuser
+* Starts a SocketInitiator, performs logon, sends application messages
+* Measures transaction latency
+* Receives ExecutionReport messages and ends the transaction from callback
+
+QuickFIX/J Acceptor (Server)
+* Accepts incoming FIX connections.
+* Parses NewOrderSingle and returns ExecutionReport.
+
+Persistence / Logging
+* Uses FileStoreFactory and FileLogFactory (writes FIX messages to local disk).
+* Uses FIX44.xml DataDictionary to validate and parse messages.
 
 ## ✨ Step by Step Breakdown
 
@@ -49,6 +64,8 @@ Session.sendToTarget(order, sessionId);
 * Gracefully stops the QuickFIX initiator
 * Logs "FIX connection steopped"
 ✅ Purpose: Clearly close the session and resoruces
+
+
 
 ## 🛠️ Technical Details
 
