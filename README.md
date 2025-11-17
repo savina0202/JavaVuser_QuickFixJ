@@ -1,15 +1,15 @@
 # Performance test a trading system POC using Loadrunner  
 
-The POC is to prove that the performance test for a trading system can be done using Loadrunner Java Vuser protocol. The script uses QuickFIX/J library to simulate FIX protocal order flow between a client and a server (accepter).
+The PoC is to prove that the performance test for a trading system can be done using Loadrunner Java Vuser protocol. The script uses QuickFIX/J library to simulate FIX protocal order flow between a client (Initiator) and a server (accepter).
 
-In anohter words, it allows Loadrunner to behave like a FIX trading client that logs on to a FIX gateway and sends NewOrderSingle message, measuring latency and validating ExecutionReport response - just like a real trading front-end would do.
+In anohter words, it allows Loadrunner to behave like a FIX trading client that logs on to a FIX gateway and sends `NewOrderSingle` message, measuring latency and validating ExecutionReport response - just like a real trading front-end would do.
 
 
 ## 🎯 Overview
-This is a proof of concept (PoC) based on the FIX protocol, using a client–server architecture, where LoadRunner acts as the client and interacts with the server:
 
+* client–server architecture, where LoadRunner acts as the client and interacts with the server
 * Establishes socket connections between client and the trading server
-* Generates and sends realistic FIX orders (NewOrderSingle) and receive the trading execution report from the server for this order
+* Generates and sends realistic FIX orders `NewOrderSingle` and receive the `trading execution report` from the server for this order
 * Measures the trading transaction performance and response times
 * Simulates real-world trading load for performance testing  
 
@@ -77,7 +77,7 @@ Session.sendToTarget(order, sessionId);
   * `ClOrdID`: LR_VU + lr.get_vuser_id() +"_" + orderCounter + "_" + System.currentTimeMillis();
 * Log: Capture the FIX conversitions between the Initiator and the Accepptor 
 
-## FIX Conversations 
+## FIX Conversation sample messages
 
 Sending the order from Loadrunner to Trading system
 ```
@@ -101,13 +101,7 @@ Session Stopped (Logout)
 8=FIX.4.4|9=70|35=5|34=4|49=FIX_SERVER|52=20251005-05:20:28.906|56=LOADRUNNER_CLIENT|10=015|
 ```
 
-
-
-
-
 ## Deployment
-
-
 
 To deploy this project: 
 
