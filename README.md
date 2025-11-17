@@ -5,7 +5,7 @@ The PoC is to prove that the performance test for a trading system can be done u
 In anohter words, it allows Loadrunner to behave like a FIX trading client that logs on to a FIX gateway and sends `NewOrderSingle` message, measuring latency and validating `ExecutionReport` response - just like a real trading front-end would do.
 
 
-## 🎯 Overview
+### 🎯 Overview
 
 * client–server architecture, where LoadRunner acts as the client and interacts with the server
 * Establishes socket connections between client and the trading server
@@ -13,11 +13,11 @@ In anohter words, it allows Loadrunner to behave like a FIX trading client that 
 * Measures the trading transaction performance and response times
 * It can be used to simulate real-world trading load under distribution mode, which is mide in LoadRunner where virtal users (Vusers) are distributed across multiple Load Generator (LG) machine to execute the load (It will be covered in future).
 
-## 🏗️ High-level architecture
+### 🏗️ High-level architecture
 
 <img width="604" height="141" alt="image" src="https://github.com/user-attachments/assets/f8299132-8e3b-43c0-ada9-e9ca5ce8bb95" />
 
-### Components and Roles
+#### Components and Roles
 
 Loadrunner Java Vuser
 * Starts a SocketInitiator, performs logon, sends application messages
@@ -32,11 +32,11 @@ Persistence / Logging
 * Uses FileStoreFactory and FileLogFactory (writes FIX messages to local disk).
 * Uses FIX44.xml DataDictionary to validate and parse messages.
 
-## ✨ Step by Step Breakdown
+### ✨ Step by Step Breakdown
 
 Actions.java
 
-### 1. Initialization (`init()` method)
+#### 1. Initialization (`init()` method)
 * The script builds an in-memory FIX session configuration dynamically
 * Defines FIX version (FIX.4.4), CompIDs, heartbeat interval, connection type, and reset flags
 * Creates store and log directories for QuickFIX/J’s persistence 
@@ -47,7 +47,7 @@ Actions.java
 * Waits up to 15 seconds for the Logon (35=A) handshake to complete
 * Marks the session as loggedOn = true once connected successfully<br>
 ✅ Purpose: Establish a FIX connection between LoadRunner and the trading system
-### 2.Action (`action()` method)
+#### 2.Action (`action()` method)
 * Validates that the FIX session is active.
 * Builds a **NewOrderSingle (35=D)** message:
   * Sets core tags like `ClOrdID`, `Symbol`, `Side`, `OrderQty`, `Price`, `OrdType`, `Account`, and `TimeInForce`
@@ -60,14 +60,14 @@ Session.sendToTarget(order, sessionId);
 * Ends the transaction with `lr.end_transaction("NewOrderSingle", lr.PASS)` once the response is received.<br>
 ✅ Purpose: Simulate sending an order, measure end-to-end latency
 
-### Teardown (`end()` method)
+#### Teardown (`end()` method)
 * Gracefully stops the QuickFIX initiator
 * Logs "FIX connection steopped"<br>
 ✅ Purpose: Clearly close the session and resoruces
 
 
 
-## 🛠️ Technical Details
+### 🛠️ Technical Details
 
 * FIX Version: 4.4
 * Transport: Socket-based MINA network
@@ -77,7 +77,7 @@ Session.sendToTarget(order, sessionId);
   * `ClOrdID`: LR_VU + lr.get_vuser_id() +"_" + orderCounter + "_" + System.currentTimeMillis();
 * Log: Capture the FIX conversitions between the Initiator and the Accepptor 
 
-## FIX Conversation sample messages
+### FIX Conversation sample messages
 
 Sending the order from Loadrunner to Trading system
 ```
@@ -101,7 +101,7 @@ Session Stopped (Logout)
 8=FIX.4.4|9=70|35=5|34=4|49=FIX_SERVER|52=20251005-05:20:28.906|56=LOADRUNNER_CLIENT|10=015|
 ```
 
-## Deployment
+### Deployment Guide
 
 To deploy this project: 
 
@@ -174,17 +174,17 @@ FileStorePath=server_store
 FileLogPath=server_log
 ```
 
-## Run it
+### Run it
   * Run the fixserver.bat
   * Run the Loadrunner script using Replay and monitor the Replay output
 
-## Demo
+### Demo
 
-* Replay Summary of Loadrunner： **the average response time for two iterations is 64 ms**
+* Replay Summary of Loadrunner： **The average response time for two iterations is 64 ms**
 <img width="841" height="480" alt="Replay_Summary" src="https://github.com/user-attachments/assets/72f1f6c0-ac3b-49f3-8a12-d891a012b85f" />
 
-* Relay Log of Loadrunner
+* The Relay Log in Loadrunner
 <img width="1773" height="757" alt="Peplay_Log" src="https://github.com/user-attachments/assets/1deebe00-2e52-4b92-8c4a-3bd913bd1282" />
 
-* Log on Server side
+* The log on Server side
 <img width="1974" height="326" alt="Log_server" src="https://github.com/user-attachments/assets/9d042c11-0a1a-4fb5-8ac5-772829707db9" />
