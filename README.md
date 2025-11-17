@@ -1,17 +1,17 @@
-# Performance test a trading system POC using Loadrunner  
+# Performance test a trading system PoC using Loadrunner  
 
 The PoC is to prove that the performance test for a trading system can be done using Loadrunner Java Vuser protocol. The script uses QuickFIX/J library to simulate FIX protocal order flow between a client (Initiator) and a server (accepter).
 
-In anohter words, it allows Loadrunner to behave like a FIX trading client that logs on to a FIX gateway and sends `NewOrderSingle` message, measuring latency and validating ExecutionReport response - just like a real trading front-end would do.
+In anohter words, it allows Loadrunner to behave like a FIX trading client that logs on to a FIX gateway and sends `NewOrderSingle` message, measuring latency and validating `ExecutionReport` response - just like a real trading front-end would do.
 
 
 ## 🎯 Overview
 
 * client–server architecture, where LoadRunner acts as the client and interacts with the server
 * Establishes socket connections between client and the trading server
-* Generates and sends realistic FIX orders `NewOrderSingle` and receive the `trading execution report` from the server for this order
+* Generates and sends realistic FIX orders `NewOrderSingle` and receive the `ExecutionReport` from the server for this order
 * Measures the trading transaction performance and response times
-* Simulates real-world trading load for performance testing  
+* It can be used to simulate real-world trading load under distribution mode, which is mide in LoadRunner where virtal users (Vusers) are distributed across multiple Load Generator (LG) machine to execute the load (It will be covered in future).
 
 ## 🏗️ High-level architecture
 
@@ -45,7 +45,7 @@ Actions.java
   FileStoreFactory, FileLogFactory and DefaultMesssageFactory -> message persistence and logging
 * Starts the **SocketInitiator**, connecting to the FIX server (127.0.0.1:9000)
 * Waits up to 15 seconds for the Logon (35=A) handshake to complete
-* Marks the session as loggedOn = true once connected successfully
+* Marks the session as loggedOn = true once connected successfully<br>
 ✅ Purpose: Establish a FIX connection between LoadRunner and the trading system
 ### 2.Action (`action()` method)
 * Validates that the FIX session is active.
@@ -57,12 +57,12 @@ Actions.java
 Session.sendToTarget(order, sessionId);
 ```
 * Waits for an ExecutionReport (35=8) response in the `fromApp()` callback
-* Ends the transaction with `lr.end_transaction("NewOrderSingle", lr.PASS)` once the response is received.
+* Ends the transaction with `lr.end_transaction("NewOrderSingle", lr.PASS)` once the response is received.<br>
 ✅ Purpose: Simulate sending an order, measure end-to-end latency
 
 ### Teardown (`end()` method)
 * Gracefully stops the QuickFIX initiator
-* Logs "FIX connection steopped"
+* Logs "FIX connection steopped"<br>
 ✅ Purpose: Clearly close the session and resoruces
 
 
@@ -128,7 +128,7 @@ On Loadrunner side (Client):
 <img width="1385" height="606" alt="Runtime_Settings_Classpath" src="https://github.com/user-attachments/assets/e103fc83-f1a2-45c6-bbc6-1b72b727ca74" />
 
 ```
-4. Copy my actions.java, then overwrite the existing empty Actions Script
+4. Copy the text in actions.java, then overwrite the existing empty Actions Script
 ```
 ```
 5. Make sure log folders are created as per the configuration on the script:
