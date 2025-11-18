@@ -6,6 +6,8 @@ In anohter words, it allows Loadrunner to behave like a FIX trading client that 
 
 ### 🎥 Demo
 - [https://youtu.be/JmJkkKyShi0] (with voice) 
+> [!NOTE]
+> The demo runs in VuGen’s code debugging mode, but real performance testing must be executed in Distribution Mode. In this mode, load generators are deployed across multiple machines, allowing the system to simulate thousands of transactions per second under real-world conditions. 
 
 ### 🎯 Overview
 
