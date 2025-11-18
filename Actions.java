@@ -1,9 +1,7 @@
 /*
  * Performance test script 
  * Description: 
- * This script is a demo for how to use loadrunner Java Vuser to send Fix message from quickfix initiator to acceptor
- * 
- *                     
+ * This script is a demo for how to use loadrunner Java Vuser to send Fix message from quickfix initiator to accepter         
  */
 
 import lrapi.lr;
@@ -23,18 +21,22 @@ public class Actions
     private volatile boolean executionReportReceived = false;
     private volatile boolean fromAppCalled = false;
 
+	/**
+	 * Initialization and connection setup
+	 */
 	public int init() throws Throwable {
         
 		lr.log_message("=== FIX Client Initialization ==="); 
 				
         try {
 			
-			//Creat folders
+			//Creat folders for logging
 			java.io.File storeDir = new java.io.File("store");
 			java.io.File logDir = new java.io.File("log");
 			if(!storeDir.exists()) storeDir.mkdirs();
 			if(!logDir.exists())  logDir.mkdirs();    			
 
+			//Client configuration
             String configString =
                 "[DEFAULT]\n" +
                 "ConnectionType=initiator\n" +
@@ -59,21 +61,21 @@ public class Actions
             	"MinaLogLevel=WARN";
             
         
-
+			// Build SessionSettings from the inline config string
             SessionSettings settings = new SessionSettings(new java.io.ByteArrayInputStream(configString.getBytes()));
             
-			//2.
 			lr.log_message("Starting Fix connection 127.0.0.1:9000 ...");
             FixApplication application = new FixApplication();
             MessageStoreFactory storeFactory = new FileStoreFactory(settings);
             LogFactory logFactory = new FileLogFactory(settings);
             MessageFactory messageFactory = new DefaultMessageFactory();
 
-            // 3. 
             lr.log_message("Creating SocketInitiator with application...");
             initiator = new SocketInitiator(application, storeFactory, settings, logFactory, messageFactory);
             
             lr.log_message("Starting FIX initiator...");
+
+			// Calls initiator.start()
             initiator.start();
 
 	        for (int i = 0; i < 15; i++) {
@@ -106,21 +108,25 @@ public class Actions
     }
 
 
-	//Generate order id
+
 	private int orderCounter = 0;
 	
+	//Generate the dymanic order id
 	private String generateOrderId() {
 	        orderCounter++;
 	        String orderid= "LR_VU" + lr.get_vuser_id() + 
 	               "_" + orderCounter + 
 	               "_" + System.currentTimeMillis();
-	        //lr.log_message("orderid=" + orderid);
 	        return orderid;
 	}
 
+	/**
+	 * Send order & measure the processing speed
+	 */
+
 	public int action() throws Throwable {
 		
-		//Check if session is created 
+		//Check if session has been created 
         if (!loggedOn || sessionId == null) {
             lr.error_message("FIX session is not ready. Cannot send order.");
             lr.error_message("loggedOn=" + loggedOn + ", sessionId=" + sessionId);
@@ -149,12 +155,13 @@ public class Actions
 				
 			lr.log_message("Order created: "+ clOrdID.getValue());
 			
-            // Send order to server
+
             lr.log_message("Sending order to FIX server and start to measure the transaction ... \n");
             
-            // Starting a transaction
+            // Starting a transaction measurement 
             lr.start_transaction("NewOrderSingle");
 
+			// Sending order to server
             boolean sent = Session.sendToTarget(order, sessionId);
             if (!sent) {
                 lr.error_message("Failed to send order");
@@ -162,28 +169,6 @@ public class Actions
                 return lr.FAIL;
             }
             lr.log_message("Order ClOrdID: " + order.getClOrdID().getValue() +" sent successfully ...");
-
-            // Waiting for executionReport
-//            Thread.sleep(3000); 
-
-//			for (int i = 0; i < 50; i++) { // 5 seconds
-//	            Thread.sleep(100);
-//	            
-//	            if (fromAppCalled) {
-//	                lr.log_message("fromApp was called! Message is being processed");
-//	                Thread.sleep(2000);
-//	                break;
-//	            }
-//	            
-//	            if (i % 10 == 0) {
-//	                lr.log_message("Waiting for fromApp... " + (i/10) + "s");
-//	            }
-//	        }
-//	        
-//	        if (!fromAppCalled) {
-//	            lr.error_message("fromApp was NEVER called - check session state and message flow");
-//	        }
-
             lr.end_transaction("NewOrderSingle", lr.PASS);
             return lr.PASS;
 
@@ -194,9 +179,11 @@ public class Actions
             return lr.FAIL;
         }
         
-	}//end of action
+	}
 
-
+	/**
+	 * Gracefully stops the QuickFIX initiator
+	 */
 	public int end() throws Throwable {
 		try {
 	            if (initiator != null) {
@@ -210,31 +197,58 @@ public class Actions
 	}
 
 
-	// Fix Application
+	/**
+	 * Fix Application private Class
+	 * 
+	 * This class implements QuickFIX/J Application callbacks and extends
+	 * MessageCracker to automatically route incoming FIX application messages
+	 * (such as ExecutionReport) to specific handler methods.
+	 *
+	 * It integrates with LoadRunner via `lr.log_message()` and controls
+	 * transaction start/end, logging, and message processing.
+	 */
     private class FixApplication extends MessageCracker implements Application {
-		
+
+		/**
+		 * Called when a FIX session object is first created.
+		 */		
         @Override
         public void onCreate(SessionID sessionId) {
         	lr.log_message("FIX Session created: " + sessionId);
         }
-        
+
+		/**
+		 * Called when a Session successfully logs on 
+		 * This means the FIX connection is fully established.
+		 */
         @Override
         public void onLogon(SessionID sessionId) {
             lr.log_message("FIX Login successful: " + sessionId);
             loggedOn = true;
         }
-        
+
+		/**
+		 * Called when the FIX session logs out 
+		 * Session is disconnected or remote side requested logout.
+		 */          
         @Override
         public void onLogout(SessionID sessionId) {
             lr.log_message("FIX Logout: " + sessionId);
             loggedOn = false;
         }
-        
+
+		/**
+		 * Called before sending administrative messages (e.g., Logon, Logout, Heartbeat).
+		 * Currently unused, but suitable for inserting dynamic admin fields.
+		 */
         @Override
         public void toAdmin(Message message, SessionID sessionId) {
         	// Admin message processing here
         }
         
+		/**
+		 * Called when receiving administrative messages.
+		 */		
         @Override
         public void fromAdmin(Message message, SessionID sessionId) throws FieldNotFound, IncorrectDataFormat, IncorrectTagValue, RejectLogon {
         	// Admin message processing here: 
@@ -244,17 +258,19 @@ public class Actions
 	        	
 	        	lr.log_message("Received Admin message: " + msgType.getValue());
 	        	
-	        	if ("A".equals(msgType.getValue())){ //Logon
+	        	if ("A".equals(msgType.getValue())){ 
+					//Logon
 	        		lr.log_message("Received Logon response from server");
-	        		loggedOn = true; //Set logon flag
+	        		loggedOn = true; 
 	        		lr.log_message("Received Admin: " + msgType.getValue());
 	        		
-	        	} else if("5".equals(msgType.getValue())){  //Logout
-	        		
+	        	} else if("5".equals(msgType.getValue())){  
+					//Logout
 	        		lr.log_message("Received Logout request");
-	        		loggedOn = false; //Set logon flag
+	        		loggedOn = false; 
 	        		
-	        	} else if ("3".equals(msgType.getValue())){ //Reject
+	        	} else if ("3".equals(msgType.getValue())){ 
+					//Reject
 	        		lr.log_message("Received Reject message");
 	        		
 	        	}
@@ -267,14 +283,20 @@ public class Actions
         }
         
         
+		/**
+		 * Called before sending application messages (e.g., NewOrderSingle D).
+		 * Useful for logging outgoing FIX messages.
+		 */
+
         @Override
         public void toApp(Message message, SessionID sessionId) throws DoNotSend {
         	lr.log_message("Sending: " + message.toString());
         }
         
-        
-
-        
+		/**
+		 * Called when receiving application-level messages from server.
+		 * e.g ExecutionReport (8) or OrderCancelReject (9).
+		 */		
         @Override
         public void fromApp(Message message, SessionID sessionId) throws FieldNotFound, IncorrectDataFormat, IncorrectTagValue, UnsupportedMessageType {
             // Core:Receving message
@@ -290,7 +312,7 @@ public class Actions
 		        
 		        lr.log_message("Calling crack()...");            	
 				            	
-	            crack(message, sessionId);
+	            crack(message, sessionId); // Dispatch to correct onMessage() based on type
 	            
 	            lr.log_message("crack() completed");
 	            
@@ -299,7 +321,17 @@ public class Actions
             }
         }
 
-
+		/**
+		 * Handler for ExecutionReport (MsgType = 8).
+		 * This method is automatically called by crack() when an ExecutionReport
+		 * is received from the server.
+		 * 
+		 * It:
+		 * 1. Logs that an ExecutionReport was received
+		 * 2. Ends the LoadRunner transaction for NewOrderSingle
+		 * 3. Extracts key FIX fields (ClOrdID, OrdStatus, ExecType, LeavesQty, CumQty)
+		 * 4. Logs field content for verification
+		 */	   
         public void onMessage(ExecutionReport executionReport, SessionID sessionId) throws FieldNotFound {
             // Core: Processing executionReport msgType=8
             
