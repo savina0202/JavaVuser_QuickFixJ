@@ -4,6 +4,8 @@ The PoC is to prove that the performance test for a trading system can be done u
 
 In anohter words, it allows Loadrunner to behave like a FIX trading client that logs on to a FIX gateway and sends `NewOrderSingle` message, measuring latency and validating `ExecutionReport` response - just like a real trading front-end would do.
 
+### 🎥 Demo
+- [https://youtu.be/JmJkkKyShi0] (with voice) 
 
 ### 🎯 Overview
 
@@ -178,7 +180,7 @@ FileLogPath=server_log
   * Run the fixserver.bat
   * Run the Loadrunner script using Replay and monitor the Replay output
 
-### Demo
+### Logs
 
 * Replay Summary of Loadrunner： **The average response time for two iterations is 64 ms**
 <img width="841" height="480" alt="Replay_Summary" src="https://github.com/user-attachments/assets/72f1f6c0-ac3b-49f3-8a12-d891a012b85f" />
