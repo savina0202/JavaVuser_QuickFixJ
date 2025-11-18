@@ -15,7 +15,6 @@ In anohter words, it allows Loadrunner to behave like a FIX trading client that 
 * Establishes socket connections between client and the trading server
 * Generates and sends realistic FIX orders `NewOrderSingle` and receive the `ExecutionReport` from the server for this order
 * Measures the trading transaction performance and response times
-* It can be used to simulate real-world trading load under distribution mode, which is mide in LoadRunner where virtal users (Vusers) are distributed across multiple Load Generator (LG) machine to execute the load (It will be covered in future).
 
 ### 🏗️ High-level architecture
 
