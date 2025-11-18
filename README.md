@@ -5,7 +5,7 @@ The PoC is to prove that the performance test for a trading system can be done u
 In anohter words, it allows Loadrunner to behave like a FIX trading client that logs on to a FIX gateway and sends `NewOrderSingle` message, measuring latency and validating `ExecutionReport` response - just like a real trading front-end would do.
 
 ### 🎥 Demo
-- (https://youtu.be/JmJkkKyShi0) (with voice) 
+- https://youtu.be/JmJkkKyShi0 (with voice) 
 > [!NOTE]
 > The demo runs in VuGen’s code debugging mode, but real performance testing must be executed in Distribution Mode. In this mode, load generators are deployed across multiple machines, allowing the system to simulate thousands of transactions per second under real-world conditions. 
 
